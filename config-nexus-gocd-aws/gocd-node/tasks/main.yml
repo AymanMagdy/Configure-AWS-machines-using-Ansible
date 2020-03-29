@@ -1,0 +1,33 @@
+---
+# tasks file for gocd-node
+# This file is to install and configure go-cd server on ec2-server
+
+- name: Install gocd package
+  get_url:
+    url: https://download.gocd.org/gocd.repo
+    dest: "/etc/yum.repos.d/gocd.repo"
+
+# installing the go-cd server
+- name: install go cd repo
+  yum:
+    name: go-server
+    state: latest
+
+- name: start go cd server on ec2-node
+  service:
+    name: go-server
+    state: started
+    
+# install and start the go-agent
+- name: install go-cd agent 
+  yum:
+    name: go-agent
+    state: latest
+
+- name: start go cd agent on ec2-node
+  service:
+    name: go-agent
+    state: started
+
+# prometheus-ansible-node = 18.223.213.125
+# nexus-ansible-node = 18.223.116.164

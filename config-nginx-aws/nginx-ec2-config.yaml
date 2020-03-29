@@ -1,0 +1,34 @@
+---
+- hosts: nginxHello
+  remote_user: ec2-user
+  become: true
+  tasks:
+    - name: install the epel release package.
+      get_url:
+        url: https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        dest: "~"
+
+    - name: install the epel repo
+      yum:
+        name: "epel-release-latest-7.noarch.rpm"
+        state: present
+
+    - name: install nginx on ec2-user@172.31.23.188
+      yum:
+        name: nginx
+        state: latest
+
+    - name: start and enable nginx on ec2-user@172.31.23.188
+      service:
+        name: nginx
+        state: started
+
+    - name: restart nginx server
+      service:
+        name: nginx
+        state: reloaded
+
+    - name: Copy file with owner and permission, using symbolic representation
+      copy:
+        src: /home/ec2-user/ansible task/index.html
+        dest: /usr/share/nginx/html/

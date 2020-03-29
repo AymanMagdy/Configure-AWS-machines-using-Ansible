@@ -1,0 +1,67 @@
+---
+# tasks file for nexus-ansible-node
+
+- name: updating the server
+  shell: yum update -y
+
+- name: Installing wget
+  yum: 
+    name: wget
+    state: latest
+
+- name: install the java package.
+  yum:
+    name: java-1.8.0-openjdk.x86_64
+    state: latest
+
+- name: Intalling the nexus repo
+  get_url:
+    url: https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+    dest: "/etc/yum.repos.d/"
+
+- name: unarchive the nexus folder.
+  unarchive:
+    src: /etc/yum.repos.d/nexus-3.22.0-02-unix.tar.gz
+    dest: /etc/yum.repos.d/
+    remote_src: yes
+
+- name: move the nexus-3* folder and whats inside to nexus
+  command: "{{item}}"
+  with_items:
+  - cd /etc/yum.repos.d/
+
+- name: adding a new user for nexus
+  user:
+    name: nexus
+    comment: nexus
+    uid: 1040
+    group: root
+
+- name: chaning the ownership of the files
+  file: 
+    path: /etc/yum.repos.d/sonatype-work
+    owner: nexus
+    group: root  
+
+- name: Uncomment the user in the conf file
+  replace:
+    path: /etc/yum.repos.d/nexus-3.22.0-02/bin/nexus.rc
+    regexp: '^#run_as_user=""'
+    replace: 'run_as_user="nexus"'
+    backup: yes
+
+- name: Copy file with owner and permissions
+  copy:
+    src: /home/asoliman/Desktop/AymanData/Work/ITI/Intake 40/ansible/Day2/nexus.service
+    dest: /etc/systemd/system/nexus.service
+    owner: nexus
+
+- name: Starting nexus
+  service:
+    name: nexus
+    state: started
+
+
+
+ 
+
